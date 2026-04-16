@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Modify your Product Table Comparison</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 32px;
+      width: 100%;
+      max-width: 820px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+      color: #1a1a2e;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #888;
+      margin-bottom: 24px;
+    }
+
+    /* ── Section headings ── */
+    .section-heading {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #aaa;
+      margin-bottom: 10px;
+      margin-top: 24px;
+    }
+
+    /* ── Button groups ── */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    button {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:active { transform: scale(0.97); }
+
+    .btn-inner   { background: #4361ee; color: #fff; }
+    .btn-inner:hover { background: #3451d1; }
+
+    .btn-dom     { background: #3a86ff; color: #fff; }
+    .btn-dom:hover { background: #2176ff; }
+
+    .btn-clear   { background: #e63946; color: #fff; }
+    .btn-clear:hover { background: #c1121f; }
+
+    .btn-perf    { background: #f4a261; color: #fff; }
+    .btn-perf:hover { background: #e08c4a; }
+
+    .btn-sec     { background: #7b2d8b; color: #fff; }
+    .btn-sec:hover { background: #5e1f6e; }
+
+    .btn-delete-row {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      border-radius: 6px;
+    }
+    .btn-delete-row:hover { background: #fecaca; }
+
+    /* ── Add product form ── */
+    .add-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: #f8f9ff;
+      border: 1.5px solid #e0e4ff;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 6px;
+    }
+
+    .add-form input, .add-form select {
+      flex: 1;
+      min-width: 130px;
+      padding: 8px 12px;
+      border: 1.5px solid #dce1ff;
+      border-radius: 7px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+      color: #1a1a2e;
+      transition: border-color 0.2s;
+    }
+
+    .add-form input:focus, .add-form select:focus { border-color: #4361ee; }
+
+    .form-note {
+      font-size: 0.78rem;
+      color: #999;
+      margin-bottom: 14px;
+    }
+
+    /* ── Performance result box ── */
+    #perf-result {
+      display: none;
+      background: #1a1a2e;
+      color: #a3e635;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-top: 10px;
+      line-height: 1.8;
+    }
+
+    #perf-result .perf-title {
+      color: #ffd166;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    #perf-result .winner { color: #06d6a0; font-weight: 700; }
+
+    /* ── Security result box ── */
+    #sec-result {
+      display: none;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    #sec-result.safe   { background: #dcfce7; border: 1.5px solid #86efac; color: #14532d; }
+    #sec-result.unsafe { background: #fee2e2; border: 1.5px solid #fca5a5; color: #7f1d1d; }
+
+    /* ── Table ── */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 12px;
+      border-radius: 10px;
+      border: 1px solid #e9ecef;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #1a1a2e;
+      color: white;
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 0.85rem;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f0f2f5;
+      font-size: 0.88rem;
+      color: #333;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f9ff; }
+
+    .price { color: #2d6a4f; font-weight: 600; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #ffd6e0;
+      color: #c9184a;
+    }
+
+    .method-label {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #888;
+      margin-top: 10px;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #bbb;
+      padding: 24px;
+      font-size: 0.9rem;
+    }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1.5px solid #f0f2f5; margin: 24px 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Modify your Product Table Comparison</h1>
+
+  <!-- ══════════════════════════════════════
+       SECTION A: ADD PRODUCT FORM
+  ══════════════════════════════════════ -->
+  <div class="section-heading">➕ Add New Product</div>
+
+  <div class="add-form">
+    <input  id="input-name"     type="text"   placeholder="Product name" />
+    <input  id="input-price"    type="number" placeholder="Price (₱)" min="0" />
+    <input  id="input-category" type="text"   placeholder="Category" />
+    <button class="btn-inner" onclick="addWithInnerHTML()">
+      Add via innerHTML
+    </button>
+    <button class="btn-dom" onclick="addWithDOM()">
+      Add via DOM
+    </button>
+  </div>
+  <p class="form-note">
+    ⚠️ Security tip: try entering
+    <code>&lt;img src="x" onerror="alert('Hacked!')"&gt;</code>
+    as a product name, then click each Add button to compare behaviour.
+  </p>
+
+  <!-- ══════════════════════════════════════
+       SECTION B: LOAD / CLEAR BUTTONS
+  ══════════════════════════════════════ -->
+  <div class="section-heading">📋 Load Default Products</div>
+  <div class="btn-group">
+    <button class="btn-inner" onclick="loadWithInnerHTML()">Load via innerHTML</button>
+    <button class="btn-dom"   onclick="loadWithDOM()">Load via DOM Methods</button>
+    <button class="btn-clear" onclick="clearTable()">🗑 Clear Table</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION C: PERFORMANCE TEST
+  ══════════════════════════════════════ -->
+  <hr/>
+  <div class="section-heading">⚡ Performance Test (100+ rows)</div>
+  <div class="btn-group">
+    <button class="btn-perf" onclick="runPerformanceTest()">
+      ▶ Run Performance Test
+    </button>
+  </div>
+  <div id="perf-result"></div>
+
+  <!-- ══════════════════════════════════════
+       SECTION D: SECURITY EXPERIMENT
+  ══════════════════════════════════════ -->
+  <hr/>
+  <div class="section-heading">🔒 Security Experiment</div>
+  <div class="btn-group">
+    <button class="btn-sec" onclick="runSecurityTest()">
+      🧪 Run Security Test
+    </button>
+  </div>
+  <div id="sec-result"></div>
+
+  <!-- ══════════════════════════════════════
+       TABLE OUTPUT
+  ══════════════════════════════════════ -->
+  <hr/>
+  <div id="tableContainer">
+    <div class="empty-msg">No products loaded yet. Use the buttons above.</div>
+  </div>
+  <p class="method-label" id="methodLabel"></p>
+
+</div><!-- /container -->
+
+
+<script>
+  /* ═══════════════════════════════════════════════════
+     DEFAULT PRODUCT DATA
+  ═══════════════════════════════════════════════════ */
+  const defaultProducts = [
+    { name: "Apple 🍎",      price: 25,  category: "Fruits" },
+    { name: "Banana 🍌",     price: 10,  category: "Fruits" },
+    { name: "Mango 🥭",      price: 35,  category: "Fruits" },
+    { name: "Grapes 🍇",     price: 80,  category: "Fruits" },
+    { name: "Watermelon 🍉", price: 120, category: "Fruits" },
+  ];
+
+  /* Live array that tracks what's in the table */
+  let tableProducts = [];
+  /* Tracks which method was last used to build the table */
+  let currentMethod = null; // "innerHTML" | "DOM"
+
+  /* ═══════════════════════════════════════════════════
+     HELPER: get / ensure tbody
+  ═══════════════════════════════════════════════════ */
+  function getOrCreateTable() {
+    const container = document.getElementById("tableContainer");
+    let table = container.querySelector("table");
+    if (!table) {
+      // Build skeleton
+      container.innerHTML = "";
+      table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const hr = document.createElement("tr");
+      ["#", "Product Name", "Price", "Category", "Action"].forEach(t => {
+        const th = document.createElement("th");
+        th.textContent = t;
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      table.appendChild(thead);
+      table.appendChild(document.createElement("tbody"));
+      const wrap = document.createElement("div");
+      wrap.className = "table-wrap";
+      wrap.appendChild(table);
+      container.appendChild(wrap);
+    }
+    return table;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     LOAD WITH innerHTML
+  ═══════════════════════════════════════════════════ */
+  function loadWithInnerHTML() {
+    tableProducts = [...defaultProducts];
+    currentMethod = "innerHTML";
+    renderWithInnerHTML(tableProducts);
+    setLabel("Method Used: innerHTML");
+  }
+
+  function renderWithInnerHTML(products) {
+    const rows = products.map((p, i) => `
+      <tr data-idx="${i}">
+        <td>${i + 1}</td>
+        <td>${p.name}</td>
+        <td class="price">₱${Number(p.price).toLocaleString()}</td>
+        <td><span class="badge">${p.category}</span></td>
+        <td>
+          <button class="btn-delete-row"
+                  onclick="deleteRowInnerHTML(${i})">
+            🗑 Delete
+          </button>
+        </td>
+      </tr>`).join("");
+
+    document.getElementById("tableContainer").innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product Name</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     LOAD WITH DOM METHODS
+  ═══════════════════════════════════════════════════ */
+  function loadWithDOM() {
+    tableProducts = [...defaultProducts];
+    currentMethod = "DOM";
+    renderWithDOM(tableProducts);
+    setLabel("Method Used: Direct DOM Methods");
+  }
+
+  function renderWithDOM(products) {
+    const container = document.getElementById("tableContainer");
+    container.innerHTML = "";
+
+    const wrap  = document.createElement("div");
+    wrap.className = "table-wrap";
+
+    const table = document.createElement("table");
+
+    /* thead */
+    const thead = document.createElement("thead");
+    const hrow  = document.createElement("tr");
+    ["#", "Product Name", "Price", "Category", "Action"].forEach(t => {
+      const th = document.createElement("th");
+      th.textContent = t;
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    /* tbody */
+    const tbody = document.createElement("tbody");
+    products.forEach((p, i) => tbody.appendChild(createDOMRow(p, i)));
+    table.appendChild(tbody);
+
+    wrap.appendChild(table);
+    container.appendChild(wrap);
+  }
+
+  /* Build a single <tr> via DOM — safe (uses textContent) */
+  function createDOMRow(p, i) {
+    const tr = document.createElement("tr");
+    tr.dataset.idx = i;
+
+    const tdNum = document.createElement("td");
+    tdNum.textContent = i + 1;
+
+    const tdName = document.createElement("td");
+    tdName.textContent = p.name;          // ← textContent: XSS-safe
+
+    const tdPrice = document.createElement("td");
+    tdPrice.textContent = `₱${Number(p.price).toLocaleString()}`;
+    tdPrice.className = "price";
+
+    const tdCat = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.textContent = p.category;       // ← textContent: XSS-safe
+    badge.className = "badge";
+    tdCat.appendChild(badge);
+
+    const tdAction = document.createElement("td");
+    const delBtn   = document.createElement("button");
+    delBtn.textContent = "🗑 Delete";
+    delBtn.className   = "btn-delete-row";
+    delBtn.onclick     = () => deleteRowDOM(i);
+    tdAction.appendChild(delBtn);
+
+    tr.append(tdNum, tdName, tdPrice, tdCat, tdAction);
+    return tr;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     DELETE ROW
+  ═══════════════════════════════════════════════════ */
+  /* Delete via innerHTML — rebuild entire table */
+  function deleteRowInnerHTML(idx) {
+    tableProducts.splice(idx, 1);
+    renderWithInnerHTML(tableProducts);
+    setLabel("Method Used: innerHTML  (row deleted)");
+    console.log(`[innerHTML] Row ${idx + 1} deleted. Remaining: ${tableProducts.length}`);
+  }
+
+  /* Delete via DOM — remove single <tr> then re-number */
+  function deleteRowDOM(idx) {
+    tableProducts.splice(idx, 1);
+    /* Full re-render keeps indices in sync cleanly */
+    renderWithDOM(tableProducts);
+    setLabel("Method Used: Direct DOM Methods  (row deleted)");
+    console.log(`[DOM] Row ${idx + 1} deleted. Remaining: ${tableProducts.length}`);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     ADD PRODUCT
+  ═══════════════════════════════════════════════════ */
+  function getFormValues() {
+    const name     = document.getElementById("input-name").value;
+    const price    = parseFloat(document.getElementById("input-price").value) || 0;
+    const category = document.getElementById("input-category").value || "Uncategorised";
+    return { name, price, category };
+  }
+
+  function clearForm() {
+    ["input-name","input-price","input-category"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+  }
+
+  /* Add via innerHTML ← UNSAFE: injects raw name string */
+  function addWithInnerHTML() {
+    const p = getFormValues();
+    if (!p.name.trim()) { alert("Please enter a product name."); return; }
+
+    tableProducts.push(p);
+    currentMethod = "innerHTML";
+
+    /* NOTE: p.name is inserted WITHOUT escaping — demonstrates XSS risk */
+    const container = document.getElementById("tableContainer");
+    let tbody = container.querySelector("tbody");
+
+    if (!tbody) {
+      renderWithInnerHTML(tableProducts);
+    } else {
+      const i  = tableProducts.length - 1;
+      const tr = document.createElement("tr");
+      /* ↓ innerHTML used — raw name interpolated → XSS possible */
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${p.name}</td>
+        <td class="price">₱${Number(p.price).toLocaleString()}</td>
+        <td><span class="badge">${p.category}</span></td>
+        <td>
+          <button class="btn-delete-row" onclick="deleteRowInnerHTML(${i})">
+            🗑 Delete
+          </button>
+        </td>`;
+      tbody.appendChild(tr);
+    }
+
+    setLabel(`Method Used: innerHTML  (added "${p.name}")`);
+    console.log(`[innerHTML] Product added: "${p.name}"`);
+    clearForm();
+  }
+
+  /* Add via DOM ← SAFE: textContent escapes everything */
+  function addWithDOM() {
+    const p = getFormValues();
+    if (!p.name.trim()) { alert("Please enter a product name."); return; }
+
+    tableProducts.push(p);
+    currentMethod = "DOM";
+
+    const container = document.getElementById("tableContainer");
+    let tbody = container.querySelector("tbody");
+
+    if (!tbody) {
+      renderWithDOM(tableProducts);
+    } else {
+      const i  = tableProducts.length - 1;
+      tbody.appendChild(createDOMRow(p, i));
+    }
+
+    setLabel(`Method Used: DOM Methods  (added "${p.name}")`);
+    console.log(`[DOM] Product added: "${p.name}"`);
+    clearForm();
+  }
+
+  /* ═══════════════════════════════════════════════════
+     CLEAR TABLE
+  ═══════════════════════════════════════════════════ */
+  function clearTable() {
+    tableProducts = [];
+    currentMethod = null;
+    document.getElementById("tableContainer").innerHTML =
+      '<div class="empty-msg">No products loaded yet. Use the buttons above.</div>';
+    setLabel("");
+    console.log("Table cleared.");
+  }
+
+  /* ═══════════════════════════════════════════════════
+     GENERATE MANY PRODUCTS (helper from spec)
+  ═══════════════════════════════════════════════════ */
+  function generateManyProducts(count) {
+    let products = [];
+    for (let i = 1; i <= count; i++) {
+      products.push({
+        name: "Product " + i,
+        price: Math.floor(Math.random() * 100),
+        category: "Category " + (i % 5 + 1)
+      });
+    }
+    return products;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     PERFORMANCE TEST
+  ═══════════════════════════════════════════════════ */
+  function addManyWithInnerHTML(products) {
+    const rows = products.map((p, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${p.name}</td>
+        <td class="price">₱${p.price}</td>
+        <td><span class="badge">${p.category}</span></td>
+        <td><button class="btn-delete-row">🗑 Delete</button></td>
+      </tr>`).join("");
+
+    document.getElementById("tableContainer").innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Product Name</th><th>Price</th><th>Category</th><th>Action</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function addManyWithDOM(products) {
+    const container = document.getElementById("tableContainer");
+    container.innerHTML = "";
+
+    const wrap  = document.createElement("div");
+    wrap.className = "table-wrap";
+    const table = document.createElement("table");
+
+    const thead = document.createElement("thead");
+    const hrow  = document.createElement("tr");
+    ["#","Product Name","Price","Category","Action"].forEach(t => {
+      const th = document.createElement("th");
+      th.textContent = t;
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    const tbody   = document.createElement("tbody");
+    const fragment = document.createDocumentFragment(); // batches DOM writes
+
+    products.forEach((p, i) => {
+      const tr = document.createElement("tr");
+
+      const tdN = document.createElement("td"); tdN.textContent = i + 1;
+      const tdP = document.createElement("td"); tdP.textContent = p.name;
+      const tdPr= document.createElement("td"); tdPr.textContent = `₱${p.price}`; tdPr.className = "price";
+      const tdC = document.createElement("td");
+      const sp  = document.createElement("span"); sp.textContent = p.category; sp.className = "badge"; tdC.appendChild(sp);
+      const tdA = document.createElement("td");
+      const btn = document.createElement("button"); btn.textContent = "🗑 Delete"; btn.className = "btn-delete-row"; tdA.appendChild(btn);
+
+      tr.append(tdN, tdP, tdPr, tdC, tdA);
+      fragment.appendChild(tr);
+    });
+
+    tbody.appendChild(fragment);
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    container.appendChild(wrap);
+  }
+
+  function runPerformanceTest() {
+    const COUNT = 150;
+    const products = generateManyProducts(COUNT);
+
+    /* ── innerHTML timing ── */
+    console.time("innerHTML");
+    addManyWithInnerHTML(products);
+    console.timeEnd("innerHTML");
+    const t1Start = performance.now();
+    addManyWithInnerHTML(products);
+    const t1 = performance.now() - t1Start;
+
+    /* ── DOM timing ── */
+    console.time("DOM");
+    addManyWithDOM(products);
+    console.timeEnd("DOM");
+    const t2Start = performance.now();
+    addManyWithDOM(products);
+    const t2 = performance.now() - t2Start;
+
+    /* ── Display result ── */
+    const faster  = t1 < t2 ? "innerHTML" : "Direct DOM";
+    const diff    = Math.abs(t1 - t2).toFixed(3);
+
+    const box = document.getElementById("perf-result");
+    box.style.display = "block";
+    box.innerHTML = `
+      <div class="perf-title">⚡ Performance Results — ${COUNT} rows</div>
+      <div>innerHTML method : <strong>${t1.toFixed(3)} ms</strong></div>
+      <div>DOM method       : <strong>${t2.toFixed(3)} ms</strong></div>
+      <hr style="border-color:#333;margin:8px 0"/>
+      <div class="winner">🏆 Faster: ${faster}  (by ~${diff} ms)</div>
+      <div style="color:#8a8070;font-size:0.78rem;margin-top:4px;">
+        Check your browser console for console.time() results.
+      </div>`;
+
+    tableProducts = [...products];
+    currentMethod = "DOM";
+    setLabel(`Performance test: ${COUNT} rows rendered`);
+    console.log(`Performance test done. innerHTML: ${t1.toFixed(3)}ms | DOM: ${t2.toFixed(3)}ms`);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     SECURITY EXPERIMENT
+  ═══════════════════════════════════════════════════ */
+  function runSecurityTest() {
+    const malicious = `<img src="x" onerror="alert('Hacked!')">`;
+
+    /* innerHTML: injects the tag — onerror fires IF browser allows it */
+    const unsafeContainer = document.createElement("div");
+    unsafeContainer.innerHTML = malicious; // triggers onerror in some browsers
+
+    /* DOM (textContent): treats string as plain text — completely safe */
+    const safeEl = document.createElement("span");
+    safeEl.textContent = malicious;        // rendered as literal characters
+
+    const box = document.getElementById("sec-result");
+    box.style.display = "block";
+
+    /* Show both rendered results side-by-side in the result box */
+    box.className = "unsafe";
+    box.innerHTML = `
+      <strong>🔬 Security Experiment Results</strong><br/><br/>
+      <strong style="color:#7f1d1d">❌ innerHTML approach:</strong><br/>
+      The malicious string was injected as raw HTML. The
+      <code>&lt;img&gt;</code> tag was created and its
+      <code>onerror</code> handler executed (or attempted).
+      This is a classic <strong>XSS (Cross-Site Scripting)</strong> vulnerability.<br/><br/>
+      <div style="background:#fff;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;font-size:0.8rem;font-family:monospace;word-break:break-all;color:#991b1b;">
+        Input rendered as: ${malicious}
+      </div><br/>
+      <strong style="color:#14532d">✅ DOM Methods approach (textContent):</strong><br/>
+      The same string is treated as plain text. No HTML tags are parsed,
+      no scripts run — it is displayed <em>literally</em>.<br/><br/>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:8px 12px;font-size:0.8rem;font-family:monospace;word-break:break-all;color:#14532d;">
+        Input rendered as: ${escapeHtml(malicious)}
+      </div><br/>
+      <strong>Conclusion:</strong>
+      Always use <code>textContent</code> / DOM methods when displaying
+      user-supplied data. Never interpolate untrusted input into innerHTML.`;
+
+    console.warn("[SECURITY] innerHTML injected:", malicious);
+    console.log("[SECURITY] textContent safe rendering:", malicious);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     HELPERS
+  ═══════════════════════════════════════════════════ */
+  function setLabel(text) {
+    document.getElementById("methodLabel").textContent = text;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;");
+  }
+</script>
+</body>
+</html>
